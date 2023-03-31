@@ -1,0 +1,108 @@
+*****Cucumber Kurulumu*****
+-Cucumber page object model icin olusturduugmunuz klasorler :
+    pages -> page objectler
+    runners -> test caseleri run etmek, raporlar eklemek, feature file ile step definitionslari birlestirmek icin
+    stepdefinitions -> java kodlari
+    utilities -> reusable metotlar, driver, configreader,..
+-Cucumber feature klasoru
+    Tum feature file lar bu klasore gider
+    Tum test caseler gherkin dilinde bu klasorde yazilir
+-----------19 Subat 2023---------------------------
+1. Feature file olustur: ilkfeaturefile.feature
+2. Runner class'ini run et
+3. Console'dan missing step definition'lari kopyala
+4. stepdefinitions package'inda GoogleStepDefinitions class'i olustur ve oraya yapistir
+    @Given("User goes to google page")
+    public void user_goes_to_google_page() {
+    }
+    @When("User searches for iPhone")
+    public void user_searches_for_i_phone() {
+    }
+    @Then("verify search results contain iPhone")
+    public void verify_search_results_contain_i_phone() {
+    }
+    @Then("close the application")
+    public void close_the_application() {
+    }
+5. Step definition'lara gerekli Java code'larini yaz
+    @Given("User goes to google page")
+    public void user_goes_to_google_page() {
+        Driver.getDriver().get(ConfigReader.getProperty("google_url"));
+    }
+    NOTE: ELementleri bulmak icin pages package'ini kullan
+        public GooglePage(){
+            PageFactory.initElements(Driver.getDriver(),this);
+        }
+        @FindBy(xpath = "(//div[@class='QS5gu sy4vM'])[2]")
+        public WebElement popUpAccept;
+        @FindBy(name = "q")
+        public WebElement searchBox;
+---------Scenario Outline-----------------
+#Scenario -> Scenario Outline
+#"" -> "<sutun_ismi>"
+#Example kelimesi Scenario Outline dan sonra kullanilmali
+#Example verilerin kullanildagi yerdir
+----------
+Scenario Outline Data Driven Testing icin kullanilir
+Yani benzer scenarioyu tekrar tekrar farkli datalarda calistirmak icin kullanilir
+Scenario Outline cucumber cok Onemlidir.
+Ne zaman birden fazla data ile islem yaparsak, zaman scenario outline kullanabiliriz.
+Scenario Outline Excel ile atomasyon yapmaya benzer, tek fark, kullanimi daha kolaydir
++++++++++
+EXCEL
+1. Config Properties'e URL'i ekleyin:
+app_url=https://www.bluerentalcars.com
+2. Feature file olusturun:
+@excel_automation
+Feature: excel_login_feature
+  Scenario: TC01_musteri_giris_testi
+    Given kullanici "customer_info" bilgileri ile giris yapar
+3. Step Definitions:
+package stepdefinitions;
+import io.cucumber.java.en.Given;
+import pages.HomePage;
+import pages.LoginPage;
+import utilities.ConfigReader;
+import utilities.Driver;
+import utilities.ExcelUtils;
+import utilities.ReusableMethods;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+public class ExcelStepDefinitions {
+//Page Objelerini Olustur
+    HomePage homePage;
+    LoginPage loginPage;
+    ExcelUtils excelUtils;
+    List<Map<String,String>> excelData;
+    @Given("kullanici {string} bilgileri ile giris yapar")
+    public void kullanici_bilgileri_ile_giris_yapar(String string) {
+        String path="src/test/resources/testdata/mysmoketestdata.xlsx";
+        String sayfa = "customer_info";
+        excelUtils= new ExcelUtils(path,sayfa);
+        excelData=excelUtils.getDataList();
+//        NOTE Loop kodunu tamamla
+        excelData.forEach(data -> {
+            Driver.getDriver().get(ConfigReader.getProperty("app_url"));
+            homePage = new HomePage();
+            loginPage = new LoginPage();
+            homePage.firstLogin.click();
+            ReusableMethods.waitFor(1);
+            loginPage.email.sendKeys(data.get("username"));
+            loginPage.password.sendKeys(data.get("password"));
+            loginPage.login.click();
+            ReusableMethods.verifyElementDisplayed(homePage.userID);
+            try {
+                ReusableMethods.getScreenshot("LoginScreenshot");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            homePage.userID.click();
+            ReusableMethods.waitFor(1);
+            homePage.logOutLink.click();
+            ReusableMethods.waitFor(1);
+            homePage.OK.click();
+            ReusableMethods.waitFor(1);
+        });
+    }
+}

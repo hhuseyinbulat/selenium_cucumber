@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Cucumber" time="67.767" tests="1" skipped="0" failures="0" errors="0">
+<testcase classname="Sepete_urun_ekleme" name="TC01_Sepete_urun_ekleme" time="67.163">
+<system-out><![CDATA[
+Given Kulanici "https://www.n11.com" sayfasina gider........................passed
+When Kullanici Kulaklık arar................................................passed
+And Kullanici sonuclari yorum sayisina göre sıralar.........................passed
+And Kullanici ücretsiz kargolari listeler...................................passed
+And Kullanici ilk sayfadan ilk ve son ürünü sepete ekler....................passed
+And Kullanici sepet butonuna tıklar.........................................passed
+And Kullanici sepette bulunan en ucuz ürünün adetini iki olarak secer.......passed
+And Kullanici satın al butonuna tıklar......................................passed
+And Kullanici üye olmadan devam et linkine tıklar...........................passed
+Then Kullanici misafir kullanıcı olarak ödeme sayfasında bulundugunu dogrular.passed
+Then close the application..................................................passed
+]]></system-out>
+</testcase>
+</testsuite>
